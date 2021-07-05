@@ -4,14 +4,16 @@ import Prelude
 
 import Brainfuck.Command (Command(..))
 import Brainfuck.Interp (Interp)
-
-import Brainfuck.Interp.Util (incInstPtr, decInstPtr, readCommandOrFail, readDataOrFail, modifyDataOrFail)
+import Brainfuck.Interp.Util (incInstPtr, decInstPtr, readCommandOrFail, readDataOrFail, modifyDataOrFail, readCharOrFail)
 import Brainfuck.State (modifyDataPtr)
 import Control.Monad.State.Class (modify_)
 
+import Brainfuck.Interp.Stream (write, read, Stream)
+import Data.Char (toCharCode) as Char
 
-interpCommand :: Command -> Interp Unit
-interpCommand =
+
+interpCommand :: Stream -> Command -> Interp Unit
+interpCommand stream =
   case _ of
      IncPtr -> 
        incDataPtr
@@ -35,11 +37,13 @@ interpCommand =
        when (x /= 0)
          goToLBrace
 
-     Output ->
-       pure unit
+     Output -> do
+       c <- readCharOrFail
+       write c stream
 
-     Input ->
-       pure unit
+     Input -> do
+       x <- read stream
+       modifyDataOrFail (\_ -> Char.toCharCode x)
 
      Nop ->
        pure unit

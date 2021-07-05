@@ -12,7 +12,7 @@ import Brainfuck.Interp.Stream (write, read, Stream)
 import Data.Char (toCharCode) as Char
 
 
-interpCommand :: Stream -> Command -> Interp Unit
+interpCommand :: forall m. Monad m => Stream m -> Command -> Interp m Unit
 interpCommand stream =
   case _ of
      IncPtr -> 
@@ -50,34 +50,34 @@ interpCommand stream =
 
 
 
-incDataPtr :: Interp Unit
+incDataPtr :: forall m. Monad m => Interp m Unit
 incDataPtr = modify_ $ modifyDataPtr (_ + 1)
 
 
-decDataPtr :: Interp Unit
+decDataPtr :: forall m. Monad m => Interp m Unit
 decDataPtr = modify_ $ modifyDataPtr (_ - 1)
 
 
-incData :: Interp Unit
+incData :: forall m. Monad m => Interp m Unit
 incData = modifyDataOrFail (_ + 1)
 
 
-decData :: Interp Unit
+decData :: forall m. Monad m => Interp m Unit
 decData = modifyDataOrFail (_ - 1)
 
 
-goToRBrace :: Interp Unit
+goToRBrace :: forall m. Monad m => Interp m Unit
 goToRBrace = goToMate incInstPtr
 
 
-goToLBrace :: Interp Unit
+goToLBrace :: forall m. Monad m => Interp m Unit
 goToLBrace = goToMate decInstPtr
 
 
-goToMate :: Interp Unit -> Interp Unit
+goToMate :: forall m. Monad m => Interp m Unit -> Interp m Unit
 goToMate move = go 0
   where
-    go :: Int -> Interp Unit
+    go :: Int -> Interp m Unit
     go cnt = do
       cmd <- readCommandOrFail
       let newCnt =

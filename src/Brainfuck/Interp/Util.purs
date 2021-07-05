@@ -14,7 +14,7 @@ import Data.Char (fromCharCode) as Char
 import Data.Maybe (Maybe(..))
 
 
-modifyDataOrFail ::  (Int -> Int) -> Interp Unit
+modifyDataOrFail ::  forall m. Monad m => (Int -> Int) -> Interp m Unit
 modifyDataOrFail f = do
   state <- get
   case modifyData f state of
@@ -25,7 +25,7 @@ modifyDataOrFail f = do
       throwError DPtrOutOfRange
 
 
-readDataOrFail ::  Interp Int
+readDataOrFail ::  forall m. Monad m => Interp m Int
 readDataOrFail = do
   gets readData >>=
     case _ of
@@ -36,7 +36,7 @@ readDataOrFail = do
         throwError DPtrOutOfRange
 
 
-readCharOrFail :: Interp Char
+readCharOrFail :: forall m. Monad m => Interp m Char
 readCharOrFail = do
   x <- readDataOrFail
   case Char.fromCharCode x of
@@ -47,7 +47,7 @@ readCharOrFail = do
       throwError CharDecodeFailed
 
 
-readCommandOrFail :: Interp Command
+readCommandOrFail :: forall m. Monad m => Interp m Command
 readCommandOrFail = do
   state <- get
   program <- getProgram <$> ask
@@ -59,9 +59,9 @@ readCommandOrFail = do
       throwError IPtrOutOfRange
 
 
-incInstPtr ::  Interp Unit
+incInstPtr ::  forall m. Monad m => Interp m Unit
 incInstPtr = modify_ $ modifyInstPtr (_ + 1)
 
 
-decInstPtr ::  Interp Unit
+decInstPtr ::  forall m. Monad m => Interp m Unit
 decInstPtr = modify_ $ modifyInstPtr (_ - 1)

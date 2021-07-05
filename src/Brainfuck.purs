@@ -13,36 +13,46 @@ import Control.Monad.Reader.Class (ask)
 import Control.Monad.State.Class (get)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-
 import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Console (log)
 
+import Brainfuck.Interp.Log (Log, logStart, logState, logCmd, logEnd, noLog, debugLog)
 
-run :: forall m. Monad m => Stream m -> Program -> m (InterpResult Unit)
-run stream program = runInterp (interpProgram stream) (makeEnv program) defaultState
+
+run :: forall m. Monad m => Stream m -> Log m -> Program -> m (InterpResult Unit)
+run stream log program =
+  runInterp (interpProgram stream log) (makeEnv program) defaultState
 
 
 runDefault :: Program -> Effect (InterpResult Unit)
-runDefault program = run defaultStream program
+runDefault program = run defaultStream noLog program
 
 
 runWithLog :: forall m. MonadEffect m => Stream m -> Program -> m Unit
 runWithLog stream program = do
-  res <- run stream program
+  res <- run stream debugLog program
   liftEffect $ log $ ("\n" <> show res)
 
 
-interpProgram :: forall m. Monad m => Stream m -> Interp m Unit
-interpProgram stream = do
-  program <- getProgram <$> ask
-  state <- get
-  case readCommand program state of
-    Just cmd -> do
-      interpCommand stream cmd
+interpProgram :: forall m. Monad m => Stream m -> Log m -> Interp m Unit
+interpProgram stream log = do
+  logStart log
+  loop
+  logEnd log
+  where
+    loop :: Interp m Unit
+    loop = do
+      program <- getProgram <$> ask
+      state <- get
+      logState log state
+      case readCommand program state of
+        Just cmd -> do
+          logCmd log cmd
+          interpCommand stream cmd
 
-      incInstPtr
-      interpProgram stream
+          incInstPtr
+          loop
 
-    Nothing ->
-      pure unit
+        Nothing ->
+          pure unit
 

@@ -25,6 +25,7 @@ to generate this file without the comments in this block.
   , "node-streams"
   , "prelude"
   , "psci-support"
+  , "refs"
   , "strings"
   , "transformers"
   , "tuples"

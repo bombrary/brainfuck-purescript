@@ -1,4 +1,4 @@
-module Brainfuck.Cli.State where
+module Brainfuck.CUI.State where
 
 import Prelude
 
@@ -11,6 +11,7 @@ import Data.String.CodeUnits (singleton) as CodeUnits
 newtype State = State
   { output :: String
   , y :: Int
+  , outputLines :: Int
   }
 
 
@@ -19,7 +20,16 @@ init =
   Ref.new $ State
     { output: ""
     , y: 0
+    , outputLines: 0
     }
+
+
+getOutputLines :: State -> Int
+getOutputLines (State { outputLines }) = outputLines
+
+
+incOntputLines :: State -> State
+incOntputLines (State s@{ outputLines }) = State s { outputLines = outputLines + 1 }
 
 
 getOutput :: State -> String

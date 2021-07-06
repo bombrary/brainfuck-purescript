@@ -7,11 +7,12 @@ import Brainfuck.Program (fromString) as BP
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 
-import Brainfuck.Cli (cliLog, cliStream)
-import Brainfuck.Cli.State (init) as CliState
+import Brainfuck.CUI (cuiLog, cuiStream)
+import Brainfuck.CUI.State (init) as CUIState
+
 
 
 main :: Effect Unit
 main = do
-  ref <- CliState.init
-  launchAff_ $ B.run (cliStream ref) (cliLog ref) (BP.fromString "++++++++[>++++++++<-]>+.")
+  ref <- CUIState.init
+  launchAff_ $ B.run (cuiStream ref) (cuiLog ref) (BP.fromString "++++++++[>++++++++>+<<-]>>++<+.+>.<.+>.<.")

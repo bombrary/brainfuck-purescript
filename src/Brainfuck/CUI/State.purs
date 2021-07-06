@@ -45,9 +45,5 @@ modifyY :: (Int -> Int) -> State -> State
 modifyY f (State s@{ y }) = State s { y = f y }
 
 
-setY :: Int -> State -> State
-setY y = modifyY (\_ -> y)
-
-
 dist :: Int -> State -> Int
 dist y0 (State { y }) = y0 - y

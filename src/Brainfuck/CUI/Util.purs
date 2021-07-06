@@ -2,7 +2,7 @@ module Brainfuck.CUI.Util where
 
 import Prelude
 
-import Brainfuck.CUI.State (dist, setY, modifyY, State)
+import Brainfuck.CUI.State (dist, modifyY, State)
 import Brainfuck.Interp (Interp)
 import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Ref (Ref, modify_, read) as Ref
@@ -13,7 +13,7 @@ import Data.Array (replicate) as Array
 import Data.String (joinWith) as String
 
 import Brainfuck.Interp.Stream (questionAff)
-import Node.ReadLine (createConsoleInterface, noCompletion, close, Interface) as RL
+import Node.ReadLine (createConsoleInterface, noCompletion, close) as RL
 import Data.String.CodeUnits (toChar, take) as CodeUnits
 import Control.Monad.Error.Class (throwError)
 import Brainfuck.Error (Error(..))

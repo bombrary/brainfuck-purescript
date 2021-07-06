@@ -2,7 +2,7 @@ module Brainfuck.CUI where
 
 import Prelude
 
-import Brainfuck.CUI.Util (clearLine, down, highlight, moveAt, newLineTimes, printAt, questionAndReadChar, up) as CUI
+import Brainfuck.CUI.Util (clearLine, highlight, moveAt, newLineTimes, printAt, questionAndReadChar, up) as CUI
 import Brainfuck.CUI.State (State, appendOutput, getOutput, incOntputLines, getOutputLines) as CUI
 import Brainfuck.Env (getProgram)
 import Brainfuck.Interp.Log (Log(..))
@@ -54,10 +54,11 @@ cuiLog cuiState = Log
       program <- getProgram <$> ask
       CUI.printAt 0 cuiState $ showProgram iptr program
       CUI.printAt 1 cuiState $ showMemory dptr memory
-      liftAff $ delay (Milliseconds 10.0)
+      liftAff $ delay (Milliseconds 100.0)
 
-    onEnd = 
-       CUI.down 4
+    onEnd = do
+      st <- liftEffect $ Ref.read cuiState
+      CUI.moveAt (3 + CUI.getOutputLines st) cuiState
 
 
 mapWithASpecialIndex :: forall a b. Int -> (a -> b) -> (a -> b) -> Array a -> Array b

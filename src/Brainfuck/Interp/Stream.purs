@@ -13,13 +13,12 @@ import Effect (Effect)
 
 import Brainfuck.Error (Error(..))
 import Control.Monad.Error.Class (throwError)
-import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String.CodeUnits (singleton, take, toChar) as CodeUnits
-import Effect.Exception (Error) as E
 import Effect.Aff.Class (liftAff)
-import Effect.Aff (Aff, Canceler, nonCanceler, makeAff)
-import Node.ReadLine (createConsoleInterface, noCompletion, close, question, Interface) as RL
+import Effect.Aff (Aff)
+import Node.ReadLine (createConsoleInterface, noCompletion, close) as RL
+import Node.ReadLine.Aff (question)
 
 
 newtype Stream m = Stream
@@ -50,7 +49,7 @@ nodeStream = Stream { input, output }
   where
     input = do 
       interface <- liftEffect $ RL.createConsoleInterface RL.noCompletion
-      s <- liftAff $ questionAff "input> " interface
+      s <- liftAff $ question "input> " interface
       liftEffect $ RL.close interface
       case CodeUnits.toChar $ CodeUnits.take 1 s of
         Just c ->
@@ -61,12 +60,3 @@ nodeStream = Stream { input, output }
 
     output c =
       void $ liftEffect $ writeString stdout UTF8 (CodeUnits.singleton c) (pure unit)
-
-
-questionAff :: String -> RL.Interface -> Aff String
-questionAff q interface = makeAff go
-  where
-    go :: (Either E.Error String -> Effect Unit) -> Effect Canceler
-    go handler = do
-      RL.question q (handler <<< Right) interface
-      pure nonCanceler

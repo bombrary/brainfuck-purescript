@@ -11,8 +11,7 @@ import Node.Process (stdout)
 import Node.Stream (writeString)
 import Data.Array (replicate) as Array
 import Data.String (joinWith) as String
-
-import Brainfuck.Interp.Stream (questionAff)
+import Node.ReadLine.Aff (question)
 import Node.ReadLine (createConsoleInterface, noCompletion, close) as RL
 import Data.String.CodeUnits (toChar, take) as CodeUnits
 import Control.Monad.Error.Class (throwError)
@@ -75,7 +74,7 @@ highlight s = "\x01b[7m" <> s <> "\x01b[0m"
 questionAndReadChar :: forall m. MonadAff m => Interp m Char
 questionAndReadChar = do
   interface <- liftEffect $ RL.createConsoleInterface RL.noCompletion
-  s <- liftAff $ questionAff "input> " interface
+  s <- liftAff $ question "input> " interface
   liftEffect $ RL.close interface
   case CodeUnits.toChar $ CodeUnits.take 1 s of
     Just c ->

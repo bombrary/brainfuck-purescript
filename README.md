@@ -5,3 +5,5 @@
 ```
 % spago run
 ```
+
+![Demo](img00.gif)

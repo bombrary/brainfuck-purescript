@@ -1,0 +1,153 @@
+*, *:before, *:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #202124;
+  color: #bcc0c3;
+  font-family: "Roboto Mono", monospace;
+}
+
+.app-outer {
+  max-width: 600px;
+  margin: 100px auto;
+}
+
+.program-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.program-area input {
+  height: 1.5em;
+  margin: 0 5px 0 0;
+  padding: 0;
+  outline: none;
+  border: none;
+  flex: 1;
+  background-color: #202124;
+  border-bottom: 1.5px dashed #bcc0c3;
+  caret-color: #bcc0c3;
+  color: #bcc0c3;
+  font-size: 1.5em;
+  font-family: "Roboto Mono", monospace;
+}
+.program-area button {
+  width: 100px;
+  height: 1.5em;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font-size: 1.2em;
+  font-family: "Roboto Mono", monospace;
+  background-color: #bcc0c3;
+  color: #202124;
+}
+.program-area button:disabled {
+  display: none;
+}
+
+.state-area {
+  margin-top: 20px;
+}
+
+.program-log-area {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.program-log-area_log-highlight {
+  margin-right: 3px;
+  background-color: #bcc0c3;
+  color: #202124;
+}
+.program-log-area_log-usual {
+  margin-right: 3px;
+}
+
+.memory-log-area {
+  margin: 10px 0 0 0;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.memory-log-area_log-highlight {
+  margin-right: 10px;
+  background-color: #bcc0c3;
+  color: #202124;
+}
+.memory-log-area_log-usual {
+  margin-right: 10px;
+}
+
+.input-area {
+  margin-top: 20px;
+  display: flex;
+}
+.input-area p {
+  font-size: 1em;
+  padding: 0;
+}
+.input-area_label {
+  margin: 0 3px 0 0;
+}
+.input-area_body {
+  margin: 0;
+  flex: 1;
+  display: flex;
+}
+.input-area_body input {
+  height: 1.5em;
+  margin: 0 5px 0 0;
+  padding: 0;
+  outline: none;
+  border: none;
+  flex: 1;
+  background-color: #202124;
+  border-bottom: 1.5px dashed #bcc0c3;
+  caret-color: #bcc0c3;
+  color: #bcc0c3;
+  font-size: 1em;
+  font-family: "Roboto Mono", monospace;
+}
+.input-area_body button {
+  width: 100px;
+  height: 1.5em;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font-size: 1em;
+  font-family: "Roboto Mono", monospace;
+  background-color: #202124;
+  border: 1px solid #bcc0c3;
+  color: #bcc0c3;
+}
+
+.output-area {
+  margin-top: 10px;
+  display: flex;
+}
+.output-area p {
+  font-size: 1em;
+  padding: 0;
+}
+.output-area_label {
+  margin: 0 3px 0 0;
+}
+.output-area_body {
+  margin: 0;
+  flex: 1;
+}
+
+.interp-result {
+  margin-top: 20px;
+}
+
+/*# sourceMappingURL=style.css.map */

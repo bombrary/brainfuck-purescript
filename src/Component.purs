@@ -2,31 +2,27 @@ module Component where
 
 import Prelude
 
-import Halogen as H
-import Halogen.HTML as HH
-
 import Brainfuck (run) as B
-import Brainfuck.Interp.Stream (Stream(..)) as BIS
-import Brainfuck.Interp.Log (noLog) as BIL
-import Brainfuck.State (State(..)) as BS
 import Brainfuck.Interp (InterpResult) as BI
-import Brainfuck.Program (fromString) as BP
-import Data.Maybe (Maybe(..))
+import Brainfuck.Interp.Log (Log(..)) as BIL
+import Brainfuck.Interp.Stream (Stream(..)) as BIS
+import Brainfuck.Program (fromString, Program(..)) as BP
+import Brainfuck.State (State(..)) as BS
+import Data.Array (mapWithIndex) as Array
 import Data.Either (Either(..))
-import Effect.Aff.AVar (AVar, put, take) as AVar
-import Effect.Aff.Class (class MonadAff, liftAff)
-import Effect.Aff (Aff)
-import Effect.Class (liftEffect)
-import Halogen.HTML.Events as HE
-import Halogen.HTML.Properties as HP
+import Data.Maybe (Maybe(..))
 import Data.String.CodeUnits (singleton, toChar, take) as CodeUnits
 import Data.Traversable (for_)
+import Effect.Aff (Aff, delay, Milliseconds(..))
+import Effect.Aff.AVar (AVar, put, take) as AVar
+import Effect.Aff.Class (class MonadAff, liftAff)
+import Effect.Class (liftEffect)
+import Halogen as H
+import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
 import Halogen.Subscription as HS
-
-import Brainfuck.Interp.Log (Log(..)) as BIL
-import Brainfuck.Program (Program(..)) as BP
-import Data.Array (mapWithIndex) as Array
-import Effect.Aff (delay, Milliseconds(..))
+import Web.HTML.Common (ClassName(..))
 
 
 data Action
@@ -83,32 +79,28 @@ component =
 
 render :: forall m. State -> H.ComponentHTML Action () m
 render state =
-  HH.div_
-    [ programArea state.isExecutable
-    , if state.isInputEnabled 
-        then inputArea
-        else HH.div_ []
-    , outputArea state.output
-    , case state.stateMay of
-        Just s ->
-          stateArea (BP.fromString state.program) s
-
-        Nothing ->
-          HH.div_ []
-    , case state.result of
-        Just res ->
-          interpResult res
-
-        Nothing ->
-          HH.div_ []
+  HH.div [ HP.class_ (ClassName "app-outer") ]
+    [ HH.div [ HP.class_ (ClassName "app") ]
+      [ programArea state.isExecutable
+      , stateArea (BP.fromString state.program) state.stateMay
+      , inputArea state.isInputEnabled
+      , outputArea state.output
+      , interpResult state.result
+      ]
     ]
 
-stateArea :: forall w i. BP.Program -> BS.State -> HH.HTML w i
-stateArea program (BS.State { iptr, dptr, memory }) =
-  HH.div_
-    [ programLogArea iptr program
-    , memoryLogArea dptr memory
-    ]
+stateArea :: forall w i. BP.Program -> Maybe BS.State -> HH.HTML w i
+stateArea program stateMay =
+  case stateMay of
+    Just (BS.State { iptr, dptr, memory }) ->
+      HH.div [ HP.class_ (ClassName "state-area") ]
+        [ programLogArea iptr program
+        , memoryLogArea dptr memory
+        ]
+
+    Nothing ->
+      HH.div [ HP.class_ (ClassName "state-area") ]
+        []
 
 
 mapWithASpecialIndex :: forall a b. Int -> (a -> b) -> (a -> b) -> Array a -> Array b
@@ -118,44 +110,65 @@ mapWithASpecialIndex j fThen fElse =
 
 programLogArea :: forall w i. Int -> BP.Program -> HH.HTML w i
 programLogArea iptr (BP.Program program) =
-  HH.div_ $
+  HH.div [ HP.class_ (ClassName "program-log-area") ] $
     mapWithASpecialIndex iptr
-      (\cmd -> HH.span [ HP.style "background-color: salmon;" ] [ HH.text $ show cmd ])
-      (\cmd -> HH.span [ HP.style "background-color: white;" ] [ HH.text $ show cmd ])
+      (\cmd -> HH.span [ HP.class_ (ClassName "program-log-area_log-highlight") ]
+                       [ HH.text $ show cmd ])
+      (\cmd -> HH.span [ HP.class_ (ClassName "program-log-area_log-usual") ]
+                       [ HH.text $ show cmd ])
       program
 
 
 memoryLogArea :: forall w i. Int -> Array Int -> HH.HTML w i
 memoryLogArea dptr memory =
-  HH.div_ $
+  HH.div [ HP.class_ (ClassName "memory-log-area") ] $
     mapWithASpecialIndex dptr
-      (\dat -> HH.span [ HP.style "background-color: salmon; margin-right: 1em;" ] [ HH.text $ show dat ])
-      (\dat -> HH.span [ HP.style "background-color: white; margin-right: 1em;" ] [ HH.text $ show dat ])
+      (\dat -> HH.span [ HP.class_ (ClassName "memory-log-area_log-highlight") ]
+                       [ HH.text $ show dat ])
+      (\dat -> HH.span [ HP.class_ (ClassName "memory-log-area_log-usual")]
+                       [ HH.text $ show dat ])
       memory
 
 
-inputArea :: forall w. HH.HTML w Action
-inputArea =
-  HH.div_
-    [ HH.input
-        [ HP.type_ HP.InputText
-        , HE.onValueChange ChangeInput
-        ]
-    , HH.button
-        [ HE.onClick (\_ -> ConfirmInput) ]
-        [ HH.text "input" ]
-    ]
+inputArea :: forall w. Boolean -> HH.HTML w Action
+inputArea isInputEnabled =
+  if isInputEnabled then
+    HH.div [ HP.class_ (ClassName "input-area") ]
+      [ HH.p [ HP.class_ (ClassName "input-area_label") ]
+          [ HH.text "input> " ]
+          , HH.div [ HP.class_ (ClassName "input-area_body")
+          ]
+          [ HH.input
+              [ HP.type_ HP.InputText
+              , HE.onValueChange ChangeInput
+              ]
+          , HH.button
+              [ HE.onClick (\_ -> ConfirmInput) ]
+              [ HH.text "submit" ]
+          ]
+      ]
+  else
+    HH.div [ HP.class_ (ClassName "input-area") ]
+      [ HH.p [ HP.class_ (ClassName "input-area_label") ][ HH.text "input>"]
+      , HH.div [ HP.class_ (ClassName "input-area_body") ] []
+      ]
+
 
 outputArea :: forall w i. String -> HH.HTML w i
 outputArea output =
-  HH.div_
-    [ HH.p_ [ HH.text ("Output: " <> output ) ] ]
+  HH.div [ HP.class_ (ClassName "output-area") ]
+    [ HH.p [ HP.class_ (ClassName "output-area_label") ] [ HH.text "output>" ]
+    , HH.p [ HP.class_ (ClassName "output-area_body") ] [ HH.text output ]
+    ]
 
 
 programArea :: forall w. Boolean -> HH.HTML w Action
 programArea isExecutable=
-  HH.div_
-    [ HH.textarea [ HE.onValueChange ChangeProgram ]
+  HH.div [ HP.class_ (ClassName "program-area") ]
+  [ HH.input
+      [ HE.onValueChange ChangeProgram
+      , HP.type_ HP.InputText
+      ]
     , HH.button
         [ HE.onClick (\_ -> ExecuteProgram)
         , HP.enabled isExecutable -- 追加
@@ -164,26 +177,23 @@ programArea isExecutable=
     ]
 
 
-interpResult :: forall w i. BI.InterpResult Unit -> HH.HTML w i
-interpResult { result, state: BS.State { iptr, dptr, memory } } =
-  let message =
-        case result of
-          Right _ ->
-            "Succeed"
+interpResult :: forall w i. Maybe (BI.InterpResult Unit) -> HH.HTML w i
+interpResult resultMay =
+  case resultMay of
+    Just { result } ->
+      let message =
+            case result of
+              Right _ ->
+                "Succeed"
 
-          Left err ->
-            show err
-  in
-    HH.div_
-      [ HH.div_ [ HH.text ("Result: " <> message) ]
-      , HH.div_
-          [ HH.ul_
-              [ HH.li_ [ HH.text ("iptr: " <> show iptr) ]
-              , HH.li_ [ HH.text ("dptr: " <> show dptr) ]
-              , HH.li_ [ HH.text ("memory: " <> show memory) ]
-              ]
+              Left err ->
+                show err
+      in
+        HH.div [ HP.class_ (ClassName "interp-result") ]
+          [ HH.div_ [ HH.text ("Result> " <> message) ]
           ]
-      ]
+    Nothing ->
+      HH.div [ HP.class_ (ClassName "interp-result") ] []
 
 
 

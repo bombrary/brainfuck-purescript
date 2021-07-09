@@ -1,0 +1,161 @@
+$bg-color: #202124;
+$fg-color: #bcc0c3;
+
+*, *:before, *:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box
+}
+
+body {
+  background-color: $bg-color;
+  color: $fg-color;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.app-outer {
+  max-width: 600px;
+  margin: 100px auto;
+}
+
+.app {
+}
+
+.program-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  input {
+    height: 1.5em;
+    margin: 0 5px 0 0;
+    padding: 0;
+    outline: none;
+    border: none;
+    flex: 1;
+    background-color: $bg-color;
+    border-bottom: 1.5px dashed $fg-color;
+    caret-color: $fg-color;
+    color: $fg-color;
+    font-size: 1.5em;
+    font-family: 'Roboto Mono', monospace;
+  }
+  button {
+    width: 100px;
+    height: 1.5em;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-size: 1.2em;
+    font-family: 'Roboto Mono', monospace;
+    background-color: $fg-color;
+    color: $bg-color;
+
+    &:disabled {
+      display: none;
+    }
+  }
+}
+
+.state-area {
+  margin-top: 20px;
+}
+
+.program-log-area {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+
+  &_log-highlight {
+    margin-right: 3px;
+    background-color: $fg-color;
+    color: $bg-color;
+  }
+  &_log-usual {
+    margin-right: 3px;
+  }
+}
+
+.memory-log-area {
+  margin: 10px 0 0 0;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+
+  &_log-highlight {
+    margin-right: 10px;
+    background-color: $fg-color;
+    color: $bg-color;
+  }
+  &_log-usual {
+    margin-right: 10px;
+  }
+}
+
+.input-area {
+  margin-top: 20px;
+  display: flex;
+  p {
+    font-size: 1em;
+    padding: 0;
+  }
+  &_label{
+    margin: 0 3px 0 0;
+  }
+  &_body{
+    margin: 0;
+    flex: 1;
+    display: flex;
+    input {
+      height: 1.5em;
+      margin: 0 5px 0 0;
+      padding: 0;
+      outline: none;
+      border: none;
+      flex: 1;
+      background-color: $bg-color;
+      border-bottom: 1.5px dashed $fg-color;
+      caret-color: $fg-color;
+      color: $fg-color;
+      font-size: 1em;
+      font-family: 'Roboto Mono', monospace;
+    }
+    button {
+      width: 100px;
+      height: 1.5em;
+      appearance: none;
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      border: none;
+      margin: 0;
+      padding: 0;
+      font-size: 1em;
+      font-family: 'Roboto Mono', monospace;
+      background-color: $bg-color;
+      border: 1px solid $fg-color;
+      color: $fg-color;
+    }
+  }
+}
+
+.output-area {
+  margin-top: 10px;
+  display: flex;
+  p {
+    font-size: 1em;
+    padding: 0;
+  }
+  &_label{
+    margin: 0 3px 0 0;
+  }
+  &_body{
+    margin: 0;
+    flex: 1;
+  }
+}
+
+
+.interp-result {
+  margin-top: 20px;
+}

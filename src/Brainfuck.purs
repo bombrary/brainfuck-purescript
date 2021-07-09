@@ -8,20 +8,30 @@ import Brainfuck.Interp.Command (interpCommand)
 import Brainfuck.Interp.Stream (Stream, defaultStream)
 import Brainfuck.Interp.Util (incInstPtr)
 import Brainfuck.Program (Program)
-import Brainfuck.State (defaultState, readCommand)
+import Brainfuck.State (State(..), defaultState, readCommand)
 import Control.Monad.Reader.Class (ask)
 import Control.Monad.State.Class (get)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Class (class MonadEffect, liftEffect)
 import Effect.Console (log)
-
 import Brainfuck.Interp.Log (Log, logStart, logState, logCmd, logEnd, noLog, debugLog)
+import Data.Array (replicate) as Array
 
 
 run :: forall m. Monad m => Stream m -> Log m -> Program -> m (InterpResult Unit)
 run stream log program =
   runInterp (interpProgram stream log) (makeEnv program) defaultState
+
+runWithMemorySize :: forall m. Monad m => Stream m -> Log m -> Int -> Program ->  m (InterpResult Unit)
+runWithMemorySize stream log memSize program =
+  runInterp (interpProgram stream log) (makeEnv program) state
+  where
+    state = State
+      { iptr: 0
+      , dptr: 0
+      , memory: Array.replicate memSize 0
+      }
 
 
 runDefault :: Program -> Effect (InterpResult Unit)

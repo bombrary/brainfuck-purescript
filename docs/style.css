@@ -18,6 +18,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 30px 0 0 0;
 }
 .program-area input {
   height: 1.5em;
@@ -148,6 +149,11 @@ body {
 
 .interp-result {
   margin-top: 20px;
+}
+
+.title {
+  margin: 0;
+  padding: 0;
 }
 
 /*# sourceMappingURL=style.css.map */

@@ -2,7 +2,7 @@ module Component where
 
 import Prelude
 
-import Brainfuck (run) as B
+import Brainfuck (runWithMemorySize) as B
 import Brainfuck.Interp (InterpResult) as BI
 import Brainfuck.Interp.Log (Log(..)) as BIL
 import Brainfuck.Interp.Stream (Stream(..)) as BIS
@@ -72,7 +72,7 @@ component =
     , render
     , eval: H.mkEval $ H.defaultEval
         { handleAction = handleAction
-        , initialize = Just Initialize -- 追加
+        , initialize = Just Initialize
         }
     }
 
@@ -81,13 +81,19 @@ render :: forall m. State -> H.ComponentHTML Action () m
 render state =
   HH.div [ HP.class_ (ClassName "app-outer") ]
     [ HH.div [ HP.class_ (ClassName "app") ]
-      [ programArea state.isExecutable
-      , stateArea (BP.fromString state.program) state.stateMay
-      , inputArea state.isInputEnabled
-      , outputArea state.output
-      , interpResult state.result
-      ]
+        [ logo
+        , programArea state.isExecutable
+        , stateArea (BP.fromString state.program) state.stateMay
+        , inputArea state.isInputEnabled
+        , outputArea state.output
+        , interpResult state.result
+        ]
     ]
+
+logo :: forall w i. HH.HTML w i
+logo =
+  HH.h1 [ HP.class_ (ClassName "title") ]
+        [ HH.text "Brainfuck" ]
 
 stateArea :: forall w i. BP.Program -> Maybe BS.State -> HH.HTML w i
 stateArea program stateMay =
@@ -171,7 +177,7 @@ programArea isExecutable=
       ]
     , HH.button
         [ HE.onClick (\_ -> ExecuteProgram)
-        , HP.enabled isExecutable -- 追加
+        , HP.enabled isExecutable
         ]
         [ HH.text "Execute" ]
     ]
@@ -216,7 +222,7 @@ handleAction =
       for_ streamMay \s ->
         for_ logMay \l -> do
           H.modify_ _ { output = "" , result = Nothing, isExecutable = false }
-          res <- liftAff $ B.run s l (BP.fromString program)
+          res <- liftAff $ B.runWithMemorySize s l 60 (BP.fromString program)
           H.modify_ _ { result = Just res, isExecutable = true }
 
     Output c ->
@@ -232,8 +238,8 @@ handleAction =
       { avar, input } <- H.get
       case CodeUnits.toChar $ CodeUnits.take 1 input of
         Just c -> do
-          H.modify_ _ { input = "", isInputEnabled = false } -- (*1)
-          liftAff $ AVar.put c avar -- (*2)
+          H.modify_ _ { input = "", isInputEnabled = false }
+          liftAff $ AVar.put c avar
 
         Nothing ->
           pure unit
@@ -264,4 +270,3 @@ createLog listener = BIL.Log
     onState state = do
       liftEffect $ HS.notify listener (RequestLogState state)
       liftAff $ delay (Milliseconds 100.0)
-
